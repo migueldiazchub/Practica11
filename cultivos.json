@@ -1,0 +1,17 @@
+[
+    {
+        "nombre": "lechuga",
+        "tiempo_regado": 160,
+        "tiempo_recoleccion": 480
+    },
+    {
+        "nombre": "patata",
+        "tiempo_regado": 240,
+        "tiempo_recoleccion": 720
+    },
+    {
+        "nombre": "tomate",
+        "tiempo_regado": 200,
+        "tiempo_recoleccion": 720
+    }
+]

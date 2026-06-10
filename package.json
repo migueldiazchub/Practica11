@@ -1,0 +1,23 @@
+{
+  "name": "huertajs",
+  "version": "1.0.0",
+  "description": "cosecha propia",
+  "homepage": "https://github.com/migueldiazchub/Practica11#readme",
+  "bugs": {
+    "url": "https://github.com/migueldiazchub/Practica11/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/migueldiazchub/Practica11.git"
+  },
+  "license": "ISC",
+  "author": "Miguel",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "luxon": "^3.7.2"
+  }
+}
