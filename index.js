@@ -1,6 +1,7 @@
 import readline from "readline";
 import { DateTime as dt } from "luxon";
 import { readFile, writeFile } from "fs/promises";
+import { Cultivo } from "cultivo.js";
 
 const rl = readline.createInterface({
   input: process.stdin,
