@@ -1,17 +1,17 @@
 [
   {
     "nombre": "Lechuga",
-    "tiempo_regado": 160,
-    "tiempo_recoleccion": 480
+    "tiempo_regado": 40,
+    "tiempo_recoleccion": 80
   },
   {
     "nombre": "Patata",
-    "tiempo_regado": 240,
-    "tiempo_recoleccion": 720
+    "tiempo_regado": 40,
+    "tiempo_recoleccion": 80
   },
   {
     "nombre": "Tomate",
-    "tiempo_regado": 200,
-    "tiempo_recoleccion": 720
+    "tiempo_regado": 40,
+    "tiempo_recoleccion": 80
   }
 ]

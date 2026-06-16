@@ -57,21 +57,21 @@ export class Cultivo {
     }
 
     //cambios de estado
-    if (this.regado_restante <= 0) {
+    if (this.regado_restante <= 0 && this.regado) {
       this.secar();
     }
 
-    if (this.tiempo_sin_regar >= this.tiempo_regado * 2) {
+    if (this.tiempo_sin_regar >= this.duracion_regado * 2 && !this.muerto) {
       this.morir();
     }
 
-    if (this.total_maduro >= this.tiempo_recoleccion * 2) {
+    if (this.total_maduro >= this.tiempo_recoleccion * 2 && !this.muerto) {
       this.morir();
     }
 
     //no quiero que pueda morirse y madurar en el mismo tick
     if (!this.muerto) {
-      if (this.total_regado >= this.tiempo_recoleccion) {
+      if (this.total_regado >= this.tiempo_recoleccion && !this.maduro) {
         this.madurar();
       }
     }
@@ -95,16 +95,21 @@ export class Cultivo {
     console.log(`\n[ ${this.nombre} ${this.id} ha muerto... ]`);
   }
 
-  //cambios de estado manuales; los hace el usuario
+  //cambios de estado manuales; los activa el usuario
   regar() {
     if (this.muerto) {
       console.log(
         "\n!! Este cultivo no se puede regar porque está muerto; solo puede ser eliminado",
       );
     } else {
-      this.regado = true;
-      this.regado_restante = this.tiempo_regado;
-      this.tiempo_sin_regar = 0;
+      if (this.regado) {
+        console.log("\n!! Este cultivo todavía está húmedo");
+      } else {
+        this.regado = true;
+        this.regado_restante = this.duracion_regado;
+        this.tiempo_sin_regar = 0;
+        console.log(`\n[ ${this.nombre} ${this.id} se ha regado ]`);
+      }
     }
   }
 
@@ -121,6 +126,7 @@ export class Cultivo {
         );
       } else {
         this.recogido = true;
+        console.log(`\n[ ${this.nombre} ${this.id} se ha recolectado]`);
         return true;
       }
     }

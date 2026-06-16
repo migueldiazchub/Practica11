@@ -43,11 +43,28 @@ async function menu() {
   //gestión de ticks
   let tick = 0;
   let tickInterval = setInterval(() => {
+    if (huerta[0] !== undefined) {
+      for (let cultivo of huerta) {
+        cultivo.gestionarTick();
+      }
+    }
     tick++;
   }, 250);
 
   //gestión de huerta
   let huerta = [];
+  let recolectados = [];
+  let proximoId = 1;
+
+  function getCultivo(id) {
+    for (let cultivo of huerta) {
+      if (cultivo.id == id) {
+        return cultivo;
+      }
+    }
+    console.log("\n!! No hay ningún cultivo con este identificador");
+    return null;
+  }
 
   while (run) {
     const opcion = await input(
@@ -66,27 +83,73 @@ async function menu() {
       //plantar cultivo
       case "1":
         const cultivoPlantado = await seleccionCultivo();
-        console.log(cultivoPlantado);
+        huerta.push(
+          new Cultivo(
+            proximoId++,
+            cultivoPlantado.nombre,
+            cultivoPlantado.tiempo_regado,
+            cultivoPlantado.tiempo_recoleccion,
+          ),
+        );
         break;
 
       //regar cultivo
       case "2":
+        const idRegar = await input(
+          "\nIntroduce el número identificador del cultivo\n> ",
+        );
+        const cultivoRegado = getCultivo(idRegar);
+        cultivoRegado.regar();
         break;
 
       //recolectar cultivo
       case "3":
+        const idRecolectar = await input(
+          "\nIntroduce el número identificador del cultivo\n> ",
+        );
+        const cultivoRecolectado = getCultivo(idRecolectar);
+        if (cultivoRecolectado.recoger()) {
+          huerta = huerta.filter((cultivo) => {
+            if (cultivo.id !== cultivoRecolectado.id) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+          recolectados.push(cultivoRecolectado);
+        }
         break;
 
       //listar cultivo
       case "4":
+        for (let cultivo of huerta) {
+          console.log(cultivo);
+        }
         break;
 
       //eliminar cultivo
       case "5":
+        const idEliminar = await input(
+          "\nIntroduce el número identificador del cultivo\n> ",
+        );
+        const cultivoEliminado = getCultivo(idEliminar);
+        huerta = huerta.filter((cultivo) => {
+          if (cultivo.id !== cultivoEliminado.id) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        console.log(
+          `\n[ ${cultivoEliminado.nombre} ${cultivoEliminado.id} se ha eliminado ]`,
+        );
         break;
 
       //consultar cultivos recolectados
       case "6":
+        for (let cultivo of recolectados) {
+          console.log(cultivo);
+        }
         break;
 
       case "7":
