@@ -10,7 +10,27 @@
     "tiempo_recoleccion": 80
   },
   {
+    "nombre": "Remolacha",
+    "tiempo_regado": 40,
+    "tiempo_recoleccion": 80
+  },
+  {
     "nombre": "Tomate",
+    "tiempo_regado": 40,
+    "tiempo_recoleccion": 80
+  },
+  {
+    "nombre": "Turbolechuga",
+    "tiempo_regado": 40,
+    "tiempo_recoleccion": 80
+  },
+  {
+    "nombre": "Turbopatata",
+    "tiempo_regado": 40,
+    "tiempo_recoleccion": 80
+  },
+  {
+    "nombre": "Turbotomate",
     "tiempo_regado": 40,
     "tiempo_recoleccion": 80
   }

@@ -77,13 +77,40 @@ export class Cultivo {
         datos.regado = "no";
       }
 
-      datos["segundos hasta secarse"] = Math.floor(this.regado_restante / 4);
-      datos["segundos hasta madurar"] = Math.floor(
-        (this.tiempo_recoleccion - this.total_regado) / 4,
+      datos["tiempo hasta secarse"] = this.conversionTiempo(
+        Math.floor(this.regado_restante / 4),
+      );
+
+      datos["tiempo hasta morirse"] = this.conversionTiempo(
+        Math.floor(
+          (this.duracion_regado * 2) / 4 -
+            this.tiempo_sin_regar / 4 +
+            this.regado_restante / 4,
+        ),
+      );
+
+      datos["tiempo hasta madurar"] = this.conversionTiempo(
+        Math.floor((this.tiempo_recoleccion - this.total_regado) / 4),
       );
     }
 
     return datos;
+  }
+
+  conversionTiempo(segundos) {
+    let minutos = Math.floor(segundos / 60);
+    if (minutos == 0) {
+      return `${segundos} segundos`;
+    } else {
+      segundos -= minutos * 60;
+      let horas = Math.floor(minutos / 60);
+      if (horas == 0) {
+        `${minutos}:${segundos}`;
+      } else {
+        minutos -= horas * 60;
+        return `${horas}:${minutos}:${segundos}`;
+      }
+    }
   }
 
   gestionarTick() {

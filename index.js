@@ -25,24 +25,29 @@ async function getFile(nombre) {
 }
 
 async function seleccionCultivo() {
-  try {
-    const cultivos = await getFile("cultivos");
+  const cultivos = await getFile("cultivos");
 
-    let seleccionCultivos = "";
-    for (let i = 0; i < cultivos.length; i++) {
-      seleccionCultivos += `\n${i + 1}. ${cultivos[i].nombre}`;
-    }
+  let seleccionCultivos = "";
+  for (let i = 0; i < cultivos.length; i++) {
+    seleccionCultivos += `\n${i + 1}. ${cultivos[i].nombre}`;
+  }
 
-    let cultivoEscogido = await input(
-      seleccionCultivos + "\n\nSelecciona una opción\n> ",
-    );
-    cultivoEscogido = parseInt(cultivoEscogido) - 1;
-
-    return cultivos[cultivoEscogido];
-  } catch (error) {
+  console.clear();
+  let cultivoEscogido = await input(
+    "\nCULTIVOS DISPONIBLES\n" +
+      seleccionCultivos +
+      "\n\nSelecciona una opción\n(Presiona enter para cancelar)\n> ",
+  );
+  if (cultivoEscogido == "") {
     return null;
   }
+
+  cultivoEscogido = parseInt(cultivoEscogido) - 1;
+
+  return cultivos[cultivoEscogido];
 }
+
+async function seleccionRegar() {}
 
 async function menu() {
   let run = true;
@@ -72,9 +77,10 @@ async function menu() {
     return null;
   }
 
+  console.clear();
   while (run) {
     const opcion = await input(
-      "\nHUERTA" +
+      "\n~~  LA HUERTA  ~~\n" +
         "\n1. Plantar cultivo" +
         "\n2. Regar cultivo" +
         "\n3. Recolectar cultivo" +
@@ -90,15 +96,25 @@ async function menu() {
       case "1":
         try {
           const cultivoPlantado = await seleccionCultivo();
+          if (cultivoPlantado === null) {
+            console.clear();
+            break;
+          }
+
           huerta.push(
             new Cultivo(
-              proximoId++,
+              proximoId,
               cultivoPlantado.nombre,
               cultivoPlantado.tiempo_regado,
               cultivoPlantado.tiempo_recoleccion,
             ),
           );
+          console.clear();
+          console.log(
+            `\n[ ${cultivoPlantado.nombre} ${proximoId++} se ha plantado ]`,
+          );
         } catch (error) {
+          console.clear();
           console.log("\n!! La selección no es válida");
         } finally {
           break;
@@ -107,17 +123,40 @@ async function menu() {
       //regar cultivo
       case "2":
         if (huerta[0] === undefined) {
+          console.clear();
           console.log("\n!! No hay cultivos en la huerta");
           break;
         }
 
         try {
+          let cultivosRegables = "";
+          for (let cultivo of huerta) {
+            if (cultivo.regado == false && cultivo.muerto == false) {
+              cultivosRegables += `\n${cultivo.id}. ${cultivo.nombre}`;
+            }
+          }
+          if (cultivosRegables == "") {
+            console.clear();
+            console.log("\n!! No hay ningún cultivo vivo y seco ahora mismo");
+            break;
+          }
+
+          console.clear();
           const idRegar = await input(
-            "\nIntroduce el número identificador del cultivo\n> ",
+            "\nCULTIVOS PARA REGAR" +
+              cultivosRegables +
+              "\n\nIntroduce el número identificador del cultivo\n(Presiona enter para cancelar)\n> ",
           );
+          if (idRegar == "") {
+            console.clear();
+            break;
+          }
+
           const cultivoRegado = getCultivo(idRegar);
+          console.clear();
           cultivoRegado.regar();
         } catch (error) {
+          console.clear();
           console.log("\n!! El identificador no es válido");
         } finally {
           break;
@@ -126,15 +165,39 @@ async function menu() {
       //recolectar cultivo
       case "3":
         if (huerta[0] === undefined) {
+          console.clear();
           console.log("\n!! No hay cultivos en la huerta");
           break;
         }
 
         try {
+          let cultivosRecolectables = "";
+          for (let cultivo of huerta) {
+            if (cultivo.maduro == true && cultivo.muerto == false) {
+              cultivosRecolectables += `\n${cultivo.id}. ${cultivo.nombre}`;
+            }
+          }
+          if (cultivosRecolectables == "") {
+            console.clear();
+            console.log(
+              "\n!! No hay ningún cultivo que se pueda recolectar ahora mismo",
+            );
+            break;
+          }
+
+          console.clear();
           const idRecolectar = await input(
-            "\nIntroduce el número identificador del cultivo\n> ",
+            "\nCULTIVOS PARA RECOLECTAR" +
+              cultivosRecolectables +
+              "\n\nIntroduce el número identificador del cultivo\n(Presiona enter para cancelar)\n> ",
           );
+          if (idRecolectar == "") {
+            console.clear();
+            break;
+          }
+
           const cultivoRecolectado = getCultivo(idRecolectar);
+          console.clear();
           if (cultivoRecolectado.recoger()) {
             huerta = huerta.filter((cultivo) => {
               if (cultivo.id !== cultivoRecolectado.id) {
@@ -146,6 +209,7 @@ async function menu() {
             recolectados.push(cultivoRecolectado);
           }
         } catch (error) {
+          console.clear();
           console.log("\n!! El identificador no es válido");
         } finally {
           break;
@@ -154,43 +218,78 @@ async function menu() {
       //listar cultivo
       case "4":
         if (huerta[0] === undefined) {
+          console.clear();
           console.log("\n!! No hay cultivos en la huerta");
           break;
         }
 
-        let datosCultivos = [];
-        for (let cultivo of huerta) {
-          datosCultivos.push(cultivo.mostrar());
+        function mostrarHuerta() {
+          let datosCultivos = [];
+          for (let cultivo of huerta) {
+            datosCultivos.push(cultivo.mostrar());
+          }
+
+          console.clear();
+          console.table(datosCultivos);
+          console.log("Presiona enter para volver");
         }
-        console.table(datosCultivos);
+
+        mostrarHuerta();
+        let listInterval = setInterval(mostrarHuerta, 1000);
+        await input("");
+        clearInterval(listInterval);
+        console.clear();
         break;
 
       //eliminar cultivo
       case "5":
         if (huerta[0] === undefined) {
+          console.clear();
           console.log("\n!! No hay cultivos en la huerta");
           break;
         }
 
-        const idEliminar = await input(
-          "\nIntroduce el número identificador del cultivo\n> ",
-        );
-        const cultivoEliminado = getCultivo(idEliminar);
-        huerta = huerta.filter((cultivo) => {
-          if (cultivo.id !== cultivoEliminado.id) {
-            return true;
-          } else {
-            return false;
+        try {
+          let cultivosEliminables = "";
+          for (let cultivo of huerta) {
+            cultivosEliminables += `\n${cultivo.id}. ${cultivo.nombre}. Estado: ${cultivo.mostrar().estado}`;
           }
-        });
-        console.log(
-          `\n[ ${cultivoEliminado.nombre} ${cultivoEliminado.id} se ha eliminado ]`,
-        );
-        break;
+
+          console.clear();
+          const idEliminar = await input(
+            "\nCULTIVOS PARA ELIMINAR" +
+              cultivosEliminables +
+              "\nIntroduce el número identificador del cultivo\n(Presiona enter para cancelar)\n> ",
+          );
+          if (idEliminar == "") {
+            console.clear();
+            break;
+          }
+
+          const cultivoEliminado = getCultivo(idEliminar);
+          huerta = huerta.filter((cultivo) => {
+            if (cultivo.id !== cultivoEliminado.id) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+
+          console.clear();
+          console.log(
+            `\n[ ${cultivoEliminado.nombre} ${cultivoEliminado.id} se ha eliminado ]`,
+          );
+        } catch (error) {
+          console.clear();
+          console.log("\n!! El identificador no es válido");
+        } finally {
+          break;
+        }
 
       //consultar cultivos recolectados
       case "6":
         if (recolectados[0] === undefined) {
+          console.clear();
           console.log("\n!! No hay cultivos recolectados");
           break;
         }
@@ -199,7 +298,11 @@ async function menu() {
         for (let cultivo of recolectados) {
           datosRecolectados.push(cultivo.mostrar());
         }
+
+        console.clear();
         console.table(datosRecolectados);
+        await input("Presiona enter para volver");
+        console.clear();
         break;
 
       case "7":
@@ -227,6 +330,8 @@ async function menu() {
         break;
 
       default:
+        console.clear();
+        console.log("\n!! No es una opción válida");
         break;
     }
   }
