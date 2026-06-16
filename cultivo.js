@@ -42,6 +42,50 @@ export class Cultivo {
     this.tiempo_recoleccion = tiempo_recoleccion;
   }
 
+  mostrar() {
+    /* campos, si está recogido solo muestra los dos primeros
+        id
+        cultivo
+        estados: seco, creciendo, maduro, muerto
+        regado: sí o no
+        segundos para secarse
+        segundos para madurar
+      */
+
+    let datos = {
+      id: this.id,
+      cultivo: this.nombre,
+    };
+    if (!this.recogido) {
+      if (this.muerto) {
+        datos.estado = "muerto";
+      } else {
+        if (this.maduro) {
+          datos.estado = "maduro";
+        } else {
+          if (this.regado) {
+            datos.estado = "creciendo";
+          } else {
+            datos.estado = "seco";
+          }
+        }
+      }
+
+      if (this.regado) {
+        datos.regado = "sí";
+      } else {
+        datos.regado = "no";
+      }
+
+      datos["segundos hasta secarse"] = Math.floor(this.regado_restante / 4);
+      datos["segundos hasta madurar"] = Math.floor(
+        (this.tiempo_recoleccion - this.total_regado) / 4,
+      );
+    }
+
+    return datos;
+  }
+
   gestionarTick() {
     //contadores de ticks, solo se gestionan si el cultivo está vivo
     if (!this.muerto) {
