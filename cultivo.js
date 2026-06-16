@@ -1,37 +1,5 @@
 import { DateTime as dt } from "luxon";
 
-export class Cultivo {
-  //estado seco o húmedo
-  regado = false;
-  //ticks restantes para dejar de estar húmedo
-  regado_restante = 0;
-  //ticks que ha pasado seco
-  tiempo_sin_regar = 0;
-  //ticks totales que ha pasado húmedo
-  total_regado = 0;
-  //maduro es true si el total regado llega al tiempo de recoleccion
-  maduro = false;
-  //ticks que ha pasado maduro
-  total_maduro = 0;
-  //muerto es true si el tiempo sin regar llega al doble del tiempo de regado
-  // o si los ticks que ha pasado maduro llegan al doble del tiempo de recolección
-  muerto = false;
-  //recogido es true si se ha recogido tras volverse maduro
-  recogido = false;
-
-  constructor(nombre, tiempo_regado, tiempo_recoleccion) {
-    this.nombre = nombre;
-    this.duracion_regado = tiempo_regado;
-    this.tiempo_recoleccion = tiempo_recoleccion;
-  }
-
-  regar() {
-    this.regado = true;
-    this.regado_restante = this.tiempo_regado;
-    this.tiempo_sin_regar = 0;
-  }
-}
-
 /*
     id: number
     nombre: string
@@ -44,3 +12,117 @@ export class Cultivo {
     maduro: boolean
     muerto: boolean
 */
+
+export class Cultivo {
+  //contadores de ticks
+  //ticks restantes para dejar de estar húmedo
+  regado_restante = 0;
+  //ticks que ha pasado seco
+  tiempo_sin_regar = 0;
+  //ticks totales que ha pasado húmedo
+  total_regado = 0;
+  //ticks que ha pasado maduro
+  total_maduro = 0;
+
+  //estados
+  //estado seco o húmedo
+  regado = false;
+  //maduro es true si el total regado llega al tiempo de recoleccion
+  maduro = false;
+  //muerto es true si el tiempo sin regar llega al doble del tiempo de regado
+  // o si los ticks que ha pasado maduro llegan al doble del tiempo de recolección
+  muerto = false;
+  //recogido es true si se ha recogido tras volverse maduro
+  recogido = false;
+
+  constructor(id, nombre, tiempo_regado, tiempo_recoleccion) {
+    this.id = id;
+    this.nombre = nombre;
+    this.duracion_regado = tiempo_regado;
+    this.tiempo_recoleccion = tiempo_recoleccion;
+  }
+
+  gestionarTick() {
+    //contadores de ticks, solo se gestionan si el cultivo está vivo
+    if (!this.muerto) {
+      if (this.regado) {
+        this.regado_restante--;
+        this.total_regado++;
+      } else {
+        this.tiempo_sin_regar++;
+      }
+      if (this.maduro) {
+        this.total_maduro++;
+      }
+    }
+
+    //cambios de estado
+    if (this.regado_restante <= 0) {
+      this.secar();
+    }
+
+    if (this.tiempo_sin_regar >= this.tiempo_regado * 2) {
+      this.morir();
+    }
+
+    if (this.total_maduro >= this.tiempo_recoleccion * 2) {
+      this.morir();
+    }
+
+    //no quiero que pueda morirse y madurar en el mismo tick
+    if (!this.muerto) {
+      if (this.total_regado >= this.tiempo_recoleccion) {
+        this.madurar();
+      }
+    }
+  }
+
+  //cambios de estado automáticos
+  secar() {
+    this.regado = false;
+    console.log(`\n[ ${this.nombre} ${this.id} se ha secado ]`);
+  }
+
+  madurar() {
+    this.maduro = true;
+    console.log(
+      `\n[ ${this.nombre} ${this.id} ha madurado y puede recolectarse ]`,
+    );
+  }
+
+  morir() {
+    this.muerto = true;
+    console.log(`\n[ ${this.nombre} ${this.id} ha muerto... ]`);
+  }
+
+  //cambios de estado manuales; los hace el usuario
+  regar() {
+    if (this.muerto) {
+      console.log(
+        "\n!! Este cultivo no se puede regar porque está muerto; solo puede ser eliminado",
+      );
+    } else {
+      this.regado = true;
+      this.regado_restante = this.tiempo_regado;
+      this.tiempo_sin_regar = 0;
+    }
+  }
+
+  recoger() {
+    if (this.muerto) {
+      console.log(
+        "\n!! Este cultivo no se puede recoger porque está muerto; solo puede ser eliminado",
+      );
+      return false;
+    } else {
+      if (!this.maduro) {
+        console.log(
+          "\n!! Este cultivo no se puede recolectar porque no está maduro todavía",
+        );
+      } else {
+        this.recogido = true;
+        return true;
+      }
+    }
+  }
+}
