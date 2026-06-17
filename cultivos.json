@@ -1,37 +1,47 @@
 [
   {
     "nombre": "Lechuga",
-    "tiempo_regado": 40,
-    "tiempo_recoleccion": 80
+    "tiempo_regado": 160,
+    "tiempo_recoleccion": 450
+  },
+  {
+    "nombre": "Maíz",
+    "tiempo_regado": 2400,
+    "tiempo_recoleccion": 16800
   },
   {
     "nombre": "Patata",
-    "tiempo_regado": 40,
-    "tiempo_recoleccion": 80
+    "tiempo_regado": 350,
+    "tiempo_recoleccion": 650
   },
   {
     "nombre": "Remolacha",
-    "tiempo_regado": 40,
-    "tiempo_recoleccion": 80
+    "tiempo_regado": 240,
+    "tiempo_recoleccion": 480
+  },
+  {
+    "nombre": "Sandía",
+    "tiempo_regado": 172800,
+    "tiempo_recoleccion": 259200
   },
   {
     "nombre": "Tomate",
-    "tiempo_regado": 40,
-    "tiempo_recoleccion": 80
+    "tiempo_regado": 200,
+    "tiempo_recoleccion": 600
   },
   {
     "nombre": "Turbolechuga",
-    "tiempo_regado": 40,
-    "tiempo_recoleccion": 80
+    "tiempo_regado": 16,
+    "tiempo_recoleccion": 45
   },
   {
     "nombre": "Turbopatata",
-    "tiempo_regado": 40,
-    "tiempo_recoleccion": 80
+    "tiempo_regado": 35,
+    "tiempo_recoleccion": 65
   },
   {
     "nombre": "Turbotomate",
-    "tiempo_regado": 40,
-    "tiempo_recoleccion": 80
+    "tiempo_regado": 20,
+    "tiempo_recoleccion": 60
   }
 ]

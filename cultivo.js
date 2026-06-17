@@ -105,7 +105,7 @@ export class Cultivo {
       segundos -= minutos * 60;
       let horas = Math.floor(minutos / 60);
       if (horas == 0) {
-        `${minutos}:${segundos}`;
+        return `${minutos}:${segundos}`;
       } else {
         minutos -= horas * 60;
         return `${horas}:${minutos}:${segundos}`;
