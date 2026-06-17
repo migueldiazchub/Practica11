@@ -40,6 +40,10 @@ export class Cultivo {
     this.nombre = nombre;
     this.duracion_regado = tiempo_regado;
     this.tiempo_recoleccion = tiempo_recoleccion;
+
+    //fechas
+    this.fecha_plantado = dt.now();
+    this.fecha_cambio_humedad = dt.now();
   }
 
   mostrar() {
@@ -89,8 +93,19 @@ export class Cultivo {
         ),
       );
 
-      datos["tiempo hasta madurar"] = this.conversionTiempo(
-        Math.floor((this.tiempo_recoleccion - this.total_regado) / 4),
+      if (this.maduro) {
+        datos["tiempo hasta madurar"] = "0 segundos";
+      } else {
+        datos["tiempo hasta madurar"] = this.conversionTiempo(
+          Math.floor((this.tiempo_recoleccion - this.total_regado) / 4),
+        );
+      }
+    } else {
+      datos["fecha de plantación"] = this.fecha_plantado.toLocaleString(
+        dt.DATETIME_SHORT,
+      );
+      datos["fecha de recogida"] = this.fecha_recogida.toLocaleString(
+        dt.DATETIME_SHORT,
       );
     }
 
@@ -109,6 +124,47 @@ export class Cultivo {
       } else {
         minutos -= horas * 60;
         return `${horas}:${minutos}:${segundos}`;
+      }
+    }
+  }
+
+  actualizarContadores() {
+    if (!this.muerto) {
+      let ticksOcurridos = Math.floor(
+        (dt.now().millisecond - this.fecha_cambio_humedad.millisecond) / 250,
+      );
+      let contarTicksSeco = true;
+
+      if (this.regado) {
+        this.regado_restante -= ticksOcurridos;
+        if (this.regado_restante < 0) {
+          this.regado_restante = 0;
+          this.secar();
+        } else {
+          contarTicksSeco = false;
+        }
+
+        this.total_regado += ticksOcurridos;
+
+        if (this.total_maduro >= this.tiempo_recoleccion * 2 && !this.muerto) {
+          this.morir();
+        }
+
+        if (
+          this.total_regado >= this.tiempo_recoleccion &&
+          !this.maduro &&
+          !this.muerto
+        ) {
+          this.madurar();
+        }
+      }
+
+      if (contarTicksSeco) {
+        this.tiempo_sin_regar += ticksOcurridos;
+
+        if (this.tiempo_sin_regar >= this.duracion_regado * 2 && !this.muerto) {
+          this.morir();
+        }
       }
     }
   }
@@ -140,17 +196,19 @@ export class Cultivo {
       this.morir();
     }
 
-    //no quiero que pueda morirse y madurar en el mismo tick
-    if (!this.muerto) {
-      if (this.total_regado >= this.tiempo_recoleccion && !this.maduro) {
-        this.madurar();
-      }
+    if (
+      this.total_regado >= this.tiempo_recoleccion &&
+      !this.maduro &&
+      !this.muerto
+    ) {
+      this.madurar();
     }
   }
 
   //cambios de estado automáticos
   secar() {
     this.regado = false;
+    this.fecha_cambio_humedad = dt.now();
     console.log(`\n[ ${this.nombre} ${this.id} se ha secado ]`);
   }
 
@@ -179,6 +237,7 @@ export class Cultivo {
         this.regado = true;
         this.regado_restante = this.duracion_regado;
         this.tiempo_sin_regar = 0;
+        this.fecha_cambio_humedad = dt.now();
         console.log(`\n[ ${this.nombre} ${this.id} se ha regado ]`);
       }
     }
@@ -197,6 +256,7 @@ export class Cultivo {
         );
       } else {
         this.recogido = true;
+        this.fecha_recogida = dt.now();
         console.log(`\n[ ${this.nombre} ${this.id} se ha recolectado]`);
         return true;
       }
