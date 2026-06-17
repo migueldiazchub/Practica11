@@ -31,7 +31,7 @@
   },
   {
     "nombre": "Turbolechuga",
-    "tiempo_regado": 16,
+    "tiempo_regado": 24,
     "tiempo_recoleccion": 45
   },
   {
@@ -41,7 +41,7 @@
   },
   {
     "nombre": "Turbotomate",
-    "tiempo_regado": 20,
+    "tiempo_regado": 28,
     "tiempo_recoleccion": 60
   }
 ]
