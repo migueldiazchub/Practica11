@@ -24,6 +24,17 @@ async function getFile(nombre) {
   }
 }
 
+async function saveFile(datos, nombre) {
+  try {
+    datos = JSON.stringify(datos);
+    const path = nombre + ".json";
+    await writeFile(path, datos);
+  } catch (error) {
+    console.log("\n!! Ha habido un error al guardar los datos");
+    console.log(error);
+  }
+}
+
 async function seleccionCultivo() {
   const cultivos = await getFile("cultivos");
 
@@ -51,7 +62,12 @@ async function seleccionRegar() {}
 
 async function menu() {
   let run = true;
-  const huerta = await getFile("huerta");
+  let huerta = await getFile("huerta");
+  if (huerta.parcelas[0] !== undefined) {
+    for (let cultivo of huerta.parcelas) {
+      cultivo.actualizarContadores();
+    }
+  }
 
   //gestión de ticks
   let tick = 0;
@@ -333,6 +349,7 @@ async function menu() {
     }
   }
 
+  await saveFile(huerta, "huerta");
   rl.close();
 }
 
