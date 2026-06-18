@@ -29,6 +29,11 @@ async function saveFile(datos, nombre) {
     datos = JSON.stringify(datos);
     const path = nombre + ".json";
     await writeFile(path, datos);
+    console.clear();
+    console.log(
+      "\n|~~|~~|~~|~~|  LA HUERTA  |~~|~~|~~|~~|\n" +
+        "\nLos datos de la huerta se han guardado\nVuelve pronto!\n",
+    );
   } catch (error) {
     console.log("\n!! Ha habido un error al guardar los datos");
     console.log(error);
@@ -63,9 +68,17 @@ async function seleccionRegar() {}
 async function menu() {
   let run = true;
   let huerta = await getFile("huerta");
+  const proto = new Cultivo();
   if (huerta.parcelas[0] !== undefined) {
     for (let cultivo of huerta.parcelas) {
+      Object.setPrototypeOf(cultivo, proto);
       cultivo.actualizarContadores();
+    }
+  }
+
+  if (huerta.recolectados[0] !== undefined) {
+    for (let cultivo of huerta.recolectados) {
+      Object.setPrototypeOf(cultivo, proto);
     }
   }
 
@@ -92,7 +105,7 @@ async function menu() {
   console.clear();
   while (run) {
     const opcion = await input(
-      "\n|~|~|  LA HUERTA  |~|~|\n" +
+      "\n|~~|~~|~~|~~|  LA HUERTA  |~~|~~|~~|~~|\n" +
         "\n1. Plantar cultivo" +
         "\n2. Regar cultivo" +
         "\n3. Recolectar cultivo" +
@@ -320,6 +333,7 @@ async function menu() {
 
       case "7":
         run = false;
+        clearInterval(tickInterval);
         break;
 
       case "t":

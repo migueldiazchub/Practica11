@@ -101,12 +101,12 @@ export class Cultivo {
         );
       }
     } else {
-      datos["fecha de plantación"] = this.fecha_plantado.toLocaleString(
-        dt.DATETIME_SHORT,
-      );
-      datos["fecha de recogida"] = this.fecha_recogida.toLocaleString(
-        dt.DATETIME_SHORT,
-      );
+      datos["fecha de plantación"] = dt
+        .fromISO(this.fecha_plantado)
+        .toLocaleString(dt.DATETIME_SHORT);
+      datos["fecha de recogida"] = dt
+        .fromISO(this.fecha_recogida)
+        .toLocaleString(dt.DATETIME_SHORT);
     }
 
     return datos;
@@ -131,7 +131,9 @@ export class Cultivo {
   actualizarContadores() {
     if (!this.muerto) {
       let ticksOcurridos = Math.floor(
-        (dt.now().millisecond - this.fecha_cambio_humedad.millisecond) / 250,
+        (dt.now().toMillis() -
+          dt.fromISO(this.fecha_cambio_humedad).toMillis()) /
+          250,
       );
       let contarTicksSeco = true;
 
