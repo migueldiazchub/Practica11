@@ -307,6 +307,7 @@ async function menu() {
 
       case "7":
         run = false;
+        clearInterval(tickInterval);
         break;
 
       case "t":
