@@ -356,6 +356,15 @@ async function menu() {
         );
         break;
 
+      case "r":
+        const confirmReset = await input("\nConfirmar reinicio? (y/n)\n> ");
+        if (confirmReset.toLowerCase() == "y") {
+          const vacia = await getFile("huerta vacia");
+          huerta = vacia;
+        }
+        console.clear();
+        break;
+
       default:
         console.clear();
         console.log("\n!! No es una opción válida");

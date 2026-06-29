@@ -85,13 +85,17 @@ export class Cultivo {
         Math.floor(this.regado_restante / 4),
       );
 
-      datos["tiempo hasta morirse"] = this.conversionTiempo(
-        Math.floor(
-          (this.duracion_regado * 2) / 4 -
-            this.tiempo_sin_regar / 4 +
-            this.regado_restante / 4,
-        ),
-      );
+      if (this.muerto) {
+        datos["tiempo hasta morirse"] = "0 segundos";
+      } else {
+        datos["tiempo hasta morirse"] = this.conversionTiempo(
+          Math.floor(
+            (this.duracion_regado * 2) / 4 -
+              this.tiempo_sin_regar / 4 +
+              this.regado_restante / 4,
+          ),
+        );
+      }
 
       if (this.maduro) {
         datos["tiempo hasta madurar"] = "0 segundos";
@@ -112,6 +116,7 @@ export class Cultivo {
     return datos;
   }
 
+  //TODO: arreglar el formato de minutos y horas
   conversionTiempo(segundos) {
     let minutos = Math.floor(segundos / 60);
     if (minutos == 0) {
@@ -135,38 +140,36 @@ export class Cultivo {
           dt.fromISO(this.fecha_cambio_humedad).toMillis()) /
           250,
       );
-      let contarTicksSeco = true;
 
       if (this.regado) {
-        this.regado_restante -= ticksOcurridos;
-        if (this.regado_restante < 0) {
+        if (this.regado_restante - ticksOcurridos <= 0) {
+          this.total_regado += this.regado_restante;
+          this.tiempo_sin_regar += ticksOcurridos - this.regado_restante;
           this.regado_restante = 0;
           this.secar();
         } else {
-          contarTicksSeco = false;
+          this.total_regado += ticksOcurridos;
+          this.regado_restante -= ticksOcurridos;
         }
 
-        this.total_regado += ticksOcurridos;
-
-        if (this.total_maduro >= this.tiempo_recoleccion * 2 && !this.muerto) {
-          this.morir();
+        if (this.maduro) {
+          this.total_maduro += ticksOcurridos;
+        } else {
+          if (this.total_regado >= this.tiempo_recoleccion) {
+            this.total_maduro += ticksOcurridos - this.total_regado;
+            this.madurar();
+          }
         }
-
-        if (
-          this.total_regado >= this.tiempo_recoleccion &&
-          !this.maduro &&
-          !this.muerto
-        ) {
-          this.madurar();
-        }
+      } else {
+        this.tiempo_sin_regar += ticksOcurridos;
       }
 
-      if (contarTicksSeco) {
-        this.tiempo_sin_regar += ticksOcurridos;
+      if (this.tiempo_sin_regar >= this.duracion_regado * 2) {
+        this.morir();
+      }
 
-        if (this.tiempo_sin_regar >= this.duracion_regado * 2 && !this.muerto) {
-          this.morir();
-        }
+      if (this.total_maduro >= this.tiempo_recoleccion * 2) {
+        this.morir();
       }
     }
   }
