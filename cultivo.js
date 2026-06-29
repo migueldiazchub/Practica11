@@ -40,6 +40,10 @@ export class Cultivo {
     this.nombre = nombre;
     this.duracion_regado = tiempo_regado;
     this.tiempo_recoleccion = tiempo_recoleccion;
+
+    //fechas
+    this.fecha_plantado = dt.now();
+    this.fecha_cambio_humedad = dt.now();
   }
 
   mostrar() {
@@ -81,22 +85,38 @@ export class Cultivo {
         Math.floor(this.regado_restante / 4),
       );
 
-      datos["tiempo hasta morirse"] = this.conversionTiempo(
-        Math.floor(
-          (this.duracion_regado * 2) / 4 -
-            this.tiempo_sin_regar / 4 +
-            this.regado_restante / 4,
-        ),
-      );
+      if (this.muerto) {
+        datos["tiempo hasta morirse"] = "0 segundos";
+      } else {
+        datos["tiempo hasta morirse"] = this.conversionTiempo(
+          Math.floor(
+            (this.duracion_regado * 2) / 4 -
+              this.tiempo_sin_regar / 4 +
+              this.regado_restante / 4,
+          ),
+        );
+      }
 
-      datos["tiempo hasta madurar"] = this.conversionTiempo(
-        Math.floor((this.tiempo_recoleccion - this.total_regado) / 4),
-      );
+      if (this.maduro) {
+        datos["tiempo hasta madurar"] = "0 segundos";
+      } else {
+        datos["tiempo hasta madurar"] = this.conversionTiempo(
+          Math.floor((this.tiempo_recoleccion - this.total_regado) / 4),
+        );
+      }
+    } else {
+      datos["fecha de plantación"] = dt
+        .fromISO(this.fecha_plantado)
+        .toLocaleString(dt.DATETIME_SHORT);
+      datos["fecha de recogida"] = dt
+        .fromISO(this.fecha_recogida)
+        .toLocaleString(dt.DATETIME_SHORT);
     }
 
     return datos;
   }
 
+  //TODO: arreglar el formato de minutos y horas
   conversionTiempo(segundos) {
     let minutos = Math.floor(segundos / 60);
     if (minutos == 0) {
@@ -109,6 +129,47 @@ export class Cultivo {
       } else {
         minutos -= horas * 60;
         return `${horas}:${minutos}:${segundos}`;
+      }
+    }
+  }
+
+  actualizarContadores() {
+    if (!this.muerto) {
+      let ticksOcurridos = Math.floor(
+        (dt.now().toMillis() -
+          dt.fromISO(this.fecha_cambio_humedad).toMillis()) /
+          250,
+      );
+
+      if (this.regado) {
+        if (this.regado_restante - ticksOcurridos <= 0) {
+          this.total_regado += this.regado_restante;
+          this.tiempo_sin_regar += ticksOcurridos - this.regado_restante;
+          this.regado_restante = 0;
+          this.secar();
+        } else {
+          this.total_regado += ticksOcurridos;
+          this.regado_restante -= ticksOcurridos;
+        }
+
+        if (this.maduro) {
+          this.total_maduro += ticksOcurridos;
+        } else {
+          if (this.total_regado >= this.tiempo_recoleccion) {
+            this.total_maduro += ticksOcurridos - this.total_regado;
+            this.madurar();
+          }
+        }
+      } else {
+        this.tiempo_sin_regar += ticksOcurridos;
+      }
+
+      if (this.tiempo_sin_regar >= this.duracion_regado * 2) {
+        this.morir();
+      }
+
+      if (this.total_maduro >= this.tiempo_recoleccion * 2) {
+        this.morir();
       }
     }
   }
@@ -140,17 +201,19 @@ export class Cultivo {
       this.morir();
     }
 
-    //no quiero que pueda morirse y madurar en el mismo tick
-    if (!this.muerto) {
-      if (this.total_regado >= this.tiempo_recoleccion && !this.maduro) {
-        this.madurar();
-      }
+    if (
+      this.total_regado >= this.tiempo_recoleccion &&
+      !this.maduro &&
+      !this.muerto
+    ) {
+      this.madurar();
     }
   }
 
   //cambios de estado automáticos
   secar() {
     this.regado = false;
+    this.fecha_cambio_humedad = dt.now();
     console.log(`\n[ ${this.nombre} ${this.id} se ha secado ]`);
   }
 
@@ -179,6 +242,7 @@ export class Cultivo {
         this.regado = true;
         this.regado_restante = this.duracion_regado;
         this.tiempo_sin_regar = 0;
+        this.fecha_cambio_humedad = dt.now();
         console.log(`\n[ ${this.nombre} ${this.id} se ha regado ]`);
       }
     }
@@ -197,6 +261,7 @@ export class Cultivo {
         );
       } else {
         this.recogido = true;
+        this.fecha_recogida = dt.now();
         console.log(`\n[ ${this.nombre} ${this.id} se ha recolectado]`);
         return true;
       }
