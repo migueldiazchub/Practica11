@@ -1,0 +1,5 @@
+# mondongo
+
+turbomondongazo celestial galaxia
+meconio meconiez
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
